@@ -55,3 +55,4 @@ After modifying the `.npmrc` file, you need to run `pnpm install` again to ensur
 Licensed under the [MIT license](https://github.com/heroui-inc/next-pages-template/blob/main/LICENSE).
 # firebase-project
 # firebase-project
+# firebase-project
