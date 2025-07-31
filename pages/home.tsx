@@ -1,34 +1,32 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useRef, useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import styles from "./pageStyles.module.css"
-import { onAuthStateChanged, signOut } from "firebase/auth"
+import { signOut, onAuthStateChanged, User } from "firebase/auth"
 import { auth } from "@/lib/firebaseConfig"
+import styles from "@/pages/HomeStyle/pageStyles.module.css"
 
 export default function Home() {
-  const [user, setUser] = useState<{ name: string; email: string } | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState<User | null>(null)
   const router = useRouter()
   const scrollRef = useRef<HTMLDivElement>(null)
   const [scrollState, setScrollState] = useState<"top" | "middle" | "bottom">("top")
 
+  // Подписка на изменения пользователя
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
-        setUser({
-          name: firebaseUser.displayName || "Без имени",
-          email: firebaseUser.email || "Без email",
-        })
+        setUser(firebaseUser)
       } else {
-        router.push("/")
+        setUser(null)
+        router.push("/") // если нет пользователя — возвращаем на форму
       }
-      setLoading(false)
     })
 
     return () => unsubscribe()
   }, [router])
 
+  // Логика скролла для теней
   useEffect(() => {
     const handleScroll = () => {
       const container = scrollRef.current
@@ -47,18 +45,17 @@ export default function Home() {
     return () => container?.removeEventListener("scroll", handleScroll)
   }, [])
 
+  // Выход из аккаунта
   const handleLogout = async () => {
     await signOut(auth)
     router.push("/")
   }
 
-  if (loading) return <p style={{ textAlign: "center" }}>Загрузка...</p>
-
   return (
     <div className={styles.wrapper}>
       <div className={styles.header}>
-        <h1 className={styles.title}>Публичные профили</h1>
-        <p className={styles.subtitle}>Зарегистрированные пользователи</p>
+        <h1 className={styles.title}>Your plans</h1>
+        <p className={styles.subtitle}>ToDo list</p>
       </div>
 
       <div className={styles.scrollContainerWrapper}>
@@ -69,7 +66,7 @@ export default function Home() {
               <div className={styles.profileContent}>
                 <img src="/images/Avatar.jpg" alt="Avatar" className={styles.avatar} />
                 <div className={styles.profileInfo}>
-                  <h3 className={styles.name}>{user.name}</h3>
+                  <h3 className={styles.name}>{user.displayName || "Без имени"}</h3>
                   <p className={styles.email}>{user.email}</p>
                 </div>
               </div>
