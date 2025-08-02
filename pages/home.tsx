@@ -1,60 +1,107 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { signOut, onAuthStateChanged, User } from "firebase/auth"
-import { auth } from "@/lib/firebaseConfig"
-import styles from "@/pages/HomeStyle/pageStyles.module.css"
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { signOut } from "firebase/auth";
+import { auth, db } from "@/lib/firebaseConfig";
+import { useAuth } from "@/context/AuthContext";
+import {
+  collection,
+  addDoc,
+  onSnapshot,
+  deleteDoc,
+  doc,
+  query,
+  orderBy,
+} from "firebase/firestore";
+
+type Todo = {
+  id: string;
+  text: string;
+  created: number;
+};
 
 export default function Home() {
-  const [user, setUser] = useState<User | null>(null)
-  const router = useRouter()
+  const { user } = useAuth() as unknown as {
+    user: { uid: string; email?: string } | null;
+  };
+  console.log("user in home: ", user);
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [input, setInput] = useState("");
+  const router = useRouter();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      if (firebaseUser) {
-        setUser(firebaseUser)
-      } else {
-        setUser(null)
-        router.push("/")
-      }
-    })
+    if (!user) {
+      router.push("/login");
+      return;
+    }
 
-    return () => unsubscribe()
-  }, [router])
+    const q = query(
+      collection(db, "todos", user.uid, "userTodos"),
+      orderBy("created", "desc")
+    );
 
-  const handleLogout = async () => {
-    await signOut(auth)
-    router.push("/")
-  }
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const todosData = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...(doc.data() as Omit<Todo, "id">),
+      }));
+      setTodos(todosData);
+    });
+
+    return () => unsubscribe();
+  }, [user, router]);
+
+  const addTodo = async () => {
+    if (!input.trim() || !user) return;
+
+    await addDoc(collection(db, "todos", user.uid, "userTodos"), {
+      text: input.trim(),
+      created: Date.now(),
+    });
+
+    setInput("");
+  };
+
+  const deleteTodo = async (id: string) => {
+    if (!user) return;
+
+    await deleteDoc(doc(db, "todos", user.uid, "userTodos", id));
+  };
+
+  const logout = async () => {
+    await signOut(auth);
+    router.push("/login");
+  };
 
   return (
-    <div className={styles.fullBackground}>
-      <div className={styles.wrapper}>
-        <div className={styles.header}>
-          <h1 className={styles.title}>Your plans</h1>
-          <p className={styles.subtitle}>ToDo list</p>
-        </div>
-
-        {user && (
-          <div className={styles.profileCard}>
-            <div className={styles.profileContent}>
-              <img src="/images/Avatar.jpg" alt="Avatar" className={styles.avatar} />
-              <div className={styles.profileInfo}>
-                <h3 className={styles.name}>{user.displayName || "Без имени"}</h3>
-                <p className={styles.email}>{user.email}</p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        <div className={styles.footer}>
-          <p>User: {user?.email}</p>
-          <button onClick={handleLogout} className={styles.logoutButton}>
-            Log Out
-          </button>
-        </div>
+    <div style={{ padding: "2rem" }}>
+      <h1>Welcome, {user?.email}</h1>
+      <div>
+        <input
+          placeholder="Add a task"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          style={{ marginRight: "0.5rem" }}
+        />
+        <button onClick={addTodo}>Add</button>
       </div>
+      <ul>
+        {todos.map((todo) => (
+          <li key={todo.id}>
+            {todo.text}{" "}
+            <button
+              onClick={() => deleteTodo(todo.id)}
+              style={{ marginLeft: "0.5rem" }}
+            >
+              ❌
+            </button>
+          </li>
+        ))}
+      </ul>
+      <button onClick={logout} style={{ marginTop: "2rem" }}>
+        Log out
+      </button>
     </div>
-  )
+  );
 }

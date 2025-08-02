@@ -1,24 +1,16 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import DefaultLayout from "@/layouts/default"
-import Form from "@/pages/form"
-import Home from "@/pages/home"
+import { useEffect } from "react";
+import DefaultLayout from "@/layouts/default";
+import Login from "@/pages/login";
+import Home from "@/pages/home";
+import { useAuth } from "@/context/AuthContext";
 
 export default function IndexPage() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const { user } = useAuth() as unknown as {
+    user: { uid: string; email?: string } | null;
+  };
+  console.log("user: ", user);
 
-  useEffect(() => {
-    // Проверяем наличие флага авторизации
-    const token = localStorage.getItem("authToken")
-    if (token) {
-      setIsLoggedIn(true)
-    }
-  }, [])
-
-  return (
-    <DefaultLayout>
-      {isLoggedIn ? <Home /> : <Form />}
-    </DefaultLayout>
-  )
+  return <DefaultLayout>{user ? <Home /> : <Login />}</DefaultLayout>;
 }
