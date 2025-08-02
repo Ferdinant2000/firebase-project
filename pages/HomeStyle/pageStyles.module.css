@@ -1,161 +1,98 @@
+.fullBackground {
+  min-height: 100vh;
+  /* background: url('/my-heroui-app/public/images/bgWalper.jpg') no-repeat center center/cover; */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
 .wrapper {
-  max-width: 672px;
-  margin: 0 auto;
-  padding: 16px;
+  width: 100%;
+  max-width: 600px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 30px;
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  color: #fff;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .header {
-  text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: 20px;
 }
 
 .title {
-  font-size: 36px;
-  font-weight: 700;
-  color: #1f2937;
-  margin-bottom: 8px;
+  font-size: 2rem;
+  margin-bottom: 10px;
 }
 
 .subtitle {
-  color: #4b5563;
-  margin: 0;
+  font-size: 1.2rem;
+  opacity: 0.8;
 }
 
 .profileCard {
-  border-radius: 50px;
-  padding: 12px;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  background-color: #eff6ff;
-  margin-bottom: 16px;
+  margin: 20px 0;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  padding: 20px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: all 0.3s ease-in-out;
 }
 
 .profileContent {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 8px;
-  background-color: #dbeafe;
-  border-radius: 50px;
+  gap: 20px;
 }
 
 .avatar {
-  height: 64px;
-  width: 64px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
   object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
 .profileInfo {
-  flex: 1;
+  text-align: left;
 }
 
+
 .name {
-  font-size: 18px;
+  font-size: 1.2rem;
   font-weight: 600;
-  color: #111827;
-  margin: 0 0 4px 0;
 }
 
 .email {
-  font-size: 14px;
-  color: #4b5563;
-  margin: 0;
+  font-size: 0.9rem;
+  opacity: 0.8;
 }
 
-/* Скелетон */
-.skeleton {
-  background-color: #f3f4f6;
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-.skeletonAvatar {
-  height: 64px;
-  width: 64px;
-  border-radius: 50%;
-}
-
-.skeletonTextBlock {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.skeletonName {
-  height: 20px;
-  border-radius: 4px;
-  width: 75%;
-}
-
-.skeletonEmail {
-  height: 16px;
-  border-radius: 4px;
-  width: 50%;
-}
-
-.scrollContainerWrapper {
-  position: relative;
-}
-
-.scrollContainer {
-  max-height: 384px;
-  overflow-y: auto;
-  padding: 10px;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  background-color: #f9fafb;
-}
-
-/* Тени */
-.topShadow,
-.bottomShadow {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 48px;
-  backdrop-filter: blur(4px);
-  z-index: 10;
-  border-radius: 50px;
-  margin: 0 10px;
-}
-
-.topShadow {
-  top: 0;
-}
-
-.bottomShadow {
-  bottom: 0;
-}
-
-/* Footer */
 .footer {
-  text-align: center;
-  margin-top: 32px;
-  font-size: 14px;
-  color: #6b7280;
+  margin-top: 20px;
+  font-size: 0.9rem;
+  opacity: 0.9;
 }
 
-/* Анимация */
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: .5;
-  }
+.logoutButton {
+  margin-top: 10px;
+  padding: 10px 20px;
+  background-color: rgba(116, 148, 236, 0.7);
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
 }
 
-/* Скроллбар */
-.scrollContainer::-webkit-scrollbar {
-  width: 8px;
-}
-.scrollContainer::-webkit-scrollbar-track {
-  background: transparent;
-}
-.scrollContainer::-webkit-scrollbar-thumb {
-  background: #d1d5db;
-  border-radius: 50px;
-}
-.scrollContainer::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
+.logoutButton:hover {
+  background-color: rgba(116, 148, 236, 1);
 }

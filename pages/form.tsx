@@ -10,12 +10,12 @@ import { registerUser, loginUser } from "@/lib/auth"
 export default function Form() {
   const [isActive, setIsActive] = useState(false)
 
-  // Поля для регистрации
+  // Регистрационные поля
   const [regName, setRegName] = useState("")
   const [regEmail, setRegEmail] = useState("")
   const [regPassword, setRegPassword] = useState("")
 
-  // Поля для логина
+  // Поля логина
   const [logEmail, setLogEmail] = useState("")
   const [logPassword, setLogPassword] = useState("")
 
@@ -24,17 +24,15 @@ export default function Form() {
 
   const router = useRouter()
 
-  // Автоматическая проверка, авторизован ли пользователь
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        router.replace("/home") // Если авторизован, сразу отправляем на Home
+        router.replace("/home")
       }
     })
     return () => unsubscribe()
   }, [router])
 
-  // Обработчик регистрации
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -49,7 +47,6 @@ export default function Form() {
     }
   }
 
-  // Обработчик логина
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -66,8 +63,10 @@ export default function Form() {
 
   return (
     <div className={`${styles.container} ${isActive ? styles.active : ""}`}>
-      {/* Login */}
-      <div className={`${styles["form-box"]} ${styles.login}`}>
+      {/* Логин форма */}
+      <div
+        className={`${styles["form-box"]} ${!isActive ? styles.login : styles.hidden}`}
+      >
         <form onSubmit={handleLogin}>
           <h1 className="font-bold">Login</h1>
           {error && <p className={styles.alert}>{error}</p>}
@@ -97,8 +96,10 @@ export default function Form() {
         </form>
       </div>
 
-      {/* Register */}
-      <div className={`${styles["form-box"]} ${styles.register}`}>
+      {/* Регистрация форма */}
+      <div
+        className={`${styles["form-box"]} ${isActive ? styles.register : styles.hidden}`}
+      >
         <form onSubmit={handleRegister}>
           <h1 className="font-bold">Registration</h1>
           {error && <p className={styles.alert}>{error}</p>}
@@ -138,7 +139,7 @@ export default function Form() {
         </form>
       </div>
 
-      {/* Toggle */}
+      {/* Панель переключения */}
       <div className={styles["toggle-box"]}>
         <div className={`${styles["toggle-panel"]} ${styles["toggle-left"]}`}>
           <h1 className="font-bold">Hello, Welcome!</h1>
