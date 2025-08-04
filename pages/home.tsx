@@ -3,15 +3,34 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { signOut, onAuthStateChanged, User } from "firebase/auth"
-import { auth } from "@/lib/firebaseConfig"
+import {
+  collection,
+  addDoc,
+  getDocs,
+  deleteDoc,
+  doc,
+  updateDoc,
+  onSnapshot,
+  query,
+  orderBy,
+} from "firebase/firestore"
+import { auth, db } from "@/lib/firebaseConfig"
 import styles from "@/pages/HomeStyle/pageStyles.module.css"
+
+interface Todo {
+  id: string
+  title: string
+  completed: boolean
+}
 
 export default function Home() {
   const [user, setUser] = useState<User | null>(null)
+  const [todos, setTodos] = useState<Todo[]>([])
+  const [newTodo, setNewTodo] = useState("")
   const router = useRouter()
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsubscribeAuth = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
         setUser(firebaseUser)
       } else {
@@ -20,8 +39,47 @@ export default function Home() {
       }
     })
 
-    return () => unsubscribe()
+    return () => unsubscribeAuth()
   }, [router])
+
+  useEffect(() => {
+    if (!user) return
+    const todosRef = collection(db, "todos", user.uid, "userTodos")
+    const q = query(todosRef, orderBy("createdAt", "desc"))
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const updatedTodos: Todo[] = []
+      snapshot.forEach((doc) => {
+        updatedTodos.push({ id: doc.id, ...(doc.data() as Omit<Todo, "id">) })
+      })
+      setTodos(updatedTodos)
+    })
+
+    return () => unsubscribe()
+  }, [user])
+
+  const handleAddTodo = async () => {
+    if (!newTodo.trim() || !user) return
+
+    await addDoc(collection(db, "todos", user.uid, "userTodos"), {
+      title: newTodo,
+      completed: false,
+      createdAt: new Date(),
+    })
+    setNewTodo("")
+  }
+
+  const handleToggleCompleted = async (todoId: string, current: boolean) => {
+    if (!user) return
+    const todoRef = doc(db, "todos", user.uid, "userTodos", todoId)
+    await updateDoc(todoRef, { completed: !current })
+  }
+
+  const handleDeleteTodo = async (todoId: string) => {
+    if (!user) return
+    const todoRef = doc(db, "todos", user.uid, "userTodos", todoId)
+    await deleteDoc(todoRef)
+  }
 
   const handleLogout = async () => {
     await signOut(auth)
@@ -44,6 +102,43 @@ export default function Home() {
                 <h3 className={styles.name}>{user.displayName || "Без имени"}</h3>
                 <p className={styles.email}>{user.email}</p>
               </div>
+            </div>
+
+            <div className={styles.todoSection}>
+              <div className={styles.todoInput}>
+                <input
+                  type="text"
+                  value={newTodo}
+                  onChange={(e) => setNewTodo(e.target.value)}
+                  placeholder="Enter a new task"
+                />
+                <button onClick={handleAddTodo}>Add</button>
+              </div>
+
+              <ul className={styles.todoList}>
+                {todos.map((todo) => (
+                  <li key={todo.id} className={styles.todoItem}>
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={todo.completed}
+                        onChange={() => handleToggleCompleted(todo.id, todo.completed)}
+                        className={styles.todoCheckbox}
+                      />
+                      <span className={todo.completed ? styles.completed : ""}>
+                        {todo.completed}{todo.title}
+                      </span>
+                    </label>
+                    <button
+                      onClick={() => handleDeleteTodo(todo.id)}
+                      className={styles.deleteButton}
+                      title="Удалить задачу"
+                    >
+                      🗑️
+                    </button>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         )}
