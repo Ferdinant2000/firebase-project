@@ -305,3 +305,37 @@
 }
 
 
+.todoItem label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  cursor: pointer;
+}
+
+.todoItem input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #7494EC;
+  cursor: pointer;
+  transform: scale(1.1);
+}
+
+.todoItem span.completed {
+  text-decoration: line-through;
+  opacity: 0.5;
+  font-style: italic;
+}
+
+.deleteButton {
+  background: none;
+  border: none;
+  color: #ff7070;
+  font-size: 20px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.deleteButton:hover {
+  transform: scale(1.2);
+}
